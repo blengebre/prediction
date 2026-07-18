@@ -159,3 +159,4 @@ app.post('/api/calculate-winners', async (req, res) => {
 });
 
 app.listen(PORT, '0.0.0.0', () => console.log(`🚀 Prediction Engine live on port ${PORT}`));
+module.exports = app;
