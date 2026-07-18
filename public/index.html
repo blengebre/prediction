@@ -324,13 +324,75 @@
     .particle-dust { position: absolute; background: rgba(212, 175, 55, 0.35); border-radius: 50%; filter: blur(2px); pointer-events: none; }
     .ball-trail-sparkle { position: absolute; background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(212,175,55,0) 75%); border-radius: 50%; pointer-events: none; }
 
-    @media (max-width: 480px) {
-      .ui-wrapper { padding: 16px; }
-      .glass-card { padding: 24px 16px; border-radius: 20px; }
+    /* ────────────────────────────────────────────────────────
+       6. RESPONSIVE BREAKPOINTS
+       ──────────────────────────────────────────────────────── */
+
+    /* Tablet / large phone (≤ 600px) */
+    @media (max-width: 600px) {
+      .ui-wrapper {
+        padding: 16px 12px;
+        max-width: 100%;
+      }
+      .glass-card {
+        padding: 28px 20px;
+        border-radius: 20px;
+      }
+      .brand-header { margin-bottom: 18px; }
       .brand-header h1 { font-size: 22px; }
-      .team-selection-grid { gap: 10px; }
-      .team-card { padding: 14px 8px; }
-      .score-node input { width: 70px; height: 60px; font-size: 26px; }
+      .brand-header .event-tag { font-size: 10px; letter-spacing: 3px; }
+
+      .team-selection-grid { gap: 12px; margin-bottom: 22px; }
+      .team-card { padding: 18px 10px; border-radius: 14px; }
+      .team-card .flag { font-size: 30px; }
+      .team-card .team-name { font-size: 13px; }
+
+      .score-board { gap: 0; }
+      .score-node input { width: 76px; height: 62px; font-size: 28px; }
+
+      h2 { font-size: 18px; }
+      .step-instruction { font-size: 12px; margin-bottom: 20px; }
+
+      .action-btn { padding: 15px; font-size: 14px; }
+      .input-field-group input { padding: 13px; font-size: 15px; }
+
+      .live-metrics { margin-top: 24px; padding-top: 20px; }
+    }
+
+    /* Small phones (≤ 400px) */
+    @media (max-width: 400px) {
+      .ui-wrapper { padding: 12px 10px; }
+      .glass-card { padding: 22px 14px; border-radius: 18px; }
+      .brand-header h1 { font-size: 19px; }
+      .brand-header .event-tag { font-size: 9px; letter-spacing: 2px; }
+
+      .team-selection-grid { gap: 8px; }
+      .team-card { padding: 14px 6px; border-radius: 12px; gap: 7px; }
+      .team-card .flag { font-size: 26px; }
+      .team-card .team-name { font-size: 12px; }
+
+      .score-node input { width: 66px; height: 56px; font-size: 24px; border-radius: 10px; }
+      .score-divider { font-size: 20px; margin-top: 16px; }
+
+      h2 { font-size: 17px; }
+      .action-btn { padding: 13px; font-size: 13px; letter-spacing: 1px; }
+      .form-actions-dual { grid-template-columns: 70px 1fr; gap: 8px; }
+    }
+
+    /* Touch: remove hover animations on touch devices to prevent sticky states */
+    @media (hover: none) {
+      .team-card:hover { transform: none; background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.08); }
+      .prime-btn:hover { transform: none; box-shadow: 0 4px 15px rgba(212,175,55,0.25); filter: none; }
+      /* Add tap feedback instead */
+      .team-card:active { background: rgba(255,255,255,0.06); border-color: rgba(212,175,55,0.4); transform: scale(0.97); }
+      .action-btn:active { transform: scale(0.98); opacity: 0.9; }
+    }
+
+    /* iOS safe area support for notched phones */
+    @supports (padding: env(safe-area-inset-bottom)) {
+      .ui-wrapper {
+        padding-bottom: calc(24px + env(safe-area-inset-bottom));
+      }
     }
   </style>
 </head>
