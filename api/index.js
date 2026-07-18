@@ -23,31 +23,49 @@ const poolConfig = process.env.DATABASE_URL
 
 const pool = new Pool(poolConfig);
 
-// Initialize Tables
-async function initializeDatabase() {
-  const createTableSQL = `
-    CREATE TABLE IF NOT EXISTS match_predictions (
-      id SERIAL PRIMARY KEY,
-      name VARCHAR(255) NOT NULL,
-      email VARCHAR(255) NOT NULL UNIQUE,
-      organization VARCHAR(255) DEFAULT '',
-      predicted_winner VARCHAR(50) NOT NULL,
-      score_argentina INT NOT NULL,
-      score_spain INT NOT NULL,
-      created_at TIMESTAMPTZ DEFAULT NOW()
-    );
-  `;
+let dbInitialized = null;
+
+async function ensureDatabaseInitialized() {
+  if (!dbInitialized) {
+    dbInitialized = (async () => {
+      const createTableSQL = `
+        CREATE TABLE IF NOT EXISTS match_predictions (
+          id SERIAL PRIMARY KEY,
+          name VARCHAR(255) NOT NULL,
+          email VARCHAR(255) NOT NULL UNIQUE,
+          organization VARCHAR(255) DEFAULT '',
+          predicted_winner VARCHAR(50) NOT NULL,
+          score_argentina INT NOT NULL,
+          score_spain INT NOT NULL,
+          created_at TIMESTAMPTZ DEFAULT NOW()
+        );
+      `;
+      try {
+        await pool.query(createTableSQL);
+        console.log('✅ PostgreSQL "match_predictions" table verified.');
+      } catch (err) {
+        console.error('❌ Database init error:', err.message);
+        dbInitialized = null; // reset to allow retry
+        throw err;
+      }
+    })();
+  }
+  return dbInitialized;
+}
+
+// Middleware to guarantee DB is initialized before executing any query
+async function dbInitMiddleware(req, res, next) {
   try {
-    await pool.query(createTableSQL);
-    console.log('✅ PostgreSQL "match_predictions" table verified.');
+    await ensureDatabaseInitialized();
+    next();
   } catch (err) {
-    console.error('❌ Database init error:', err.message);
+    res.status(500).json({ error: 'Database initialization failed: ' + err.message });
   }
 }
-initializeDatabase();
 
 app.use(cors());
 app.use(express.json());
+app.use('/api', dbInitMiddleware);
 
 // ─── Static Routing Engine Patch (Local Host Fallbacks) ────────────────────────
 // Serves static assets seamlessly from the new /public folder when running locally
