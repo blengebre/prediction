@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+
+# Environment variables (API keys, passwords, database URLs)
+.env
+.env.*
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Editor settings
+.vscode/
+.idea/
+
+# Build files
+dist/
+build/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Database files (if using local DB)
+*.sqlite
+*.db
+
+# Uploads / generated files
+uploads/
+public/uploads/
+
+# Coverage
+coverage/
+
+# Cache
+.cache/

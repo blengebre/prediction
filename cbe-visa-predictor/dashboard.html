@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CBE & Visa — Live Entry Dashboard</title>
+  <style>
+    :root { 
+      --primary: #0f0c24; 
+      --accent-gold: #D4AF37; 
+      --accent-gold-gradient: linear-gradient(135deg, #FFE07D 0%, #D4AF37 50%, #A37F14 100%);
+      --bg: radial-gradient(circle at center, #1d0f3a 0%, #0d061f 70%, #05020c 100%);
+      --card-bg: rgba(22, 14, 43, 0.88);
+      --card-border: rgba(212, 175, 55, 0.25);
+      --text-muted: #bdaed6;
+    }
+
+    body { 
+      background: var(--bg); 
+      background-attachment: fixed;
+      color: #fff; 
+      font-family: system-ui, -apple-system, sans-serif; 
+      padding: 40px 20px; 
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 900px;
+    }
+
+    .header { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      border-bottom: 1px solid var(--card-border); 
+      padding-bottom: 20px; 
+      margin-bottom: 30px; 
+    }
+
+    .header h2 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      background: linear-gradient(180deg, #ffffff 40%, #dcd1ff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .live-status {
+      background: rgba(16, 185, 129, 0.15); 
+      border: 1px solid #10b981;
+      color: #34d399;
+      padding: 6px 14px; 
+      border-radius: 20px; 
+      font-size: 12px; 
+      font-weight: bold;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      animation: pulseGlow 2s infinite;
+    }
+
+    .table-container {
+      background: var(--card-bg); 
+      border-radius: 16px; 
+      overflow: hidden; 
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid var(--card-border); 
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255,255,255,0.1);
+      position: relative;
+    }
+
+    .table-container::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 3px;
+      background: var(--accent-gold-gradient);
+    }
+
+    table { 
+      width: 100%; 
+      border-collapse: collapse; 
+      color: #fff; 
+    }
+    
+    th, td { padding: 18px 24px; text-align: left; }
+    
+    th { 
+      background: rgba(15, 12, 36, 0.6); 
+      color: var(--text-muted); 
+      text-transform: uppercase; 
+      font-size: 11px; 
+      letter-spacing: 1.5px; 
+      font-weight: 700;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    
+    tr {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      transition: background 0.2s ease;
+    }
+
+    tr:last-child {
+      border-bottom: none;
+    }
+
+    tr:nth-child(even) { background: rgba(255, 255, 255, 0.02); }
+    tr:hover { background: rgba(255, 255, 255, 0.04); }
+    
+    .badge { 
+      padding: 6px 12px; 
+      border-radius: 30px; 
+      font-weight: 800; 
+      font-size: 11px; 
+      letter-spacing: 1px;
+      display: inline-block;
+    }
+    
+    /* Elegant theme match for team labels */
+    .badge-arg { 
+      background: rgba(14, 165, 233, 0.15); 
+      color: #38bdf8; 
+      border: 1px solid rgba(14, 165, 233, 0.4);
+    }
+    .badge-spa { 
+      background: rgba(245, 158, 11, 0.15); 
+      color: #fbbf24; 
+      border: 1px solid rgba(245, 158, 11, 0.4);
+    }
+
+    .score-display {
+      font-family: monospace; 
+      font-weight: 700; 
+      font-size: 18px; 
+      color: var(--accent-gold);
+    }
+
+    .org-text {
+      color: var(--text-muted);
+    }
+
+    @keyframes pulseGlow {
+      0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+      70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h2>Live Voter Stream Logs</h2>
+    <div class="live-status"><span>●</span> Auto-Syncing Live</div>
+  </div>
+
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Guest Name</th>
+          <th>Organization</th>
+          <th>Predicted Winner</th>
+          <th>Predicted Score</th>
+        </tr>
+      </thead>
+      <tbody id="voterTableBody">
+        <tr><td colspan="4" style="text-align:center; color: var(--text-muted); padding: 40px 0;">Awaiting data stream sync...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  async function refreshVoterLogs() {
+    try {
+      const res = await fetch('/api/voters');
+      const data = await res.json();
+      if(!data.success) return;
+
+      const tbody = document.getElementById('voterTableBody');
+      if(data.voters.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color: var(--text-muted); padding: 40px 0;">No predictions recorded yet.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = data.voters.map(v => `
+        <tr>
+          <td><strong>${v.name}</strong></td>
+          <td class="org-text">${v.organization || '—'}</td>
+          <td><span class="badge ${v.predicted_winner === 'Argentina' ? 'badge-arg' : 'badge-spa'}">${v.predicted_winner.toUpperCase()}</span></td>
+          <td><span class="score-display">${v.score_argentina} - ${v.score_spain}</span></td>
+        </tr>
+      `).join('');
+    } catch(e) { console.error(e); }
+  }
+
+  refreshVoterLogs();
+  setInterval(refreshVoterLogs, 5000); // Polling refresh loop every 5 seconds
+</script>
+</body>
+</html>
