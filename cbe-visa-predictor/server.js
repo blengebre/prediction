@@ -48,9 +48,17 @@ initializeDatabase();
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname)));
 
-// ─── Middleware: Enforce Strict Match Timeline ────────────────────────────────
+// ─── Static Routing Engine Patch (Local Host Fallbacks) ────────────────────────
+// Serves static assets seamlessly from the new /public folder when running locally
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Explicit fallback rule to guarantee index.html resolves correctly at the root path '/'
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+
 // ─── Middleware: Enforce Custom Active Match Timeline ────────────────────────
 function checkVotingWindow(req, res, next) {
   const now = new Date();
@@ -67,6 +75,7 @@ function checkVotingWindow(req, res, next) {
   }
   next();
 }
+
 // ─── API: Submit Fan Prediction ───────────────────────────────────────────────
 app.post('/api/predict', checkVotingWindow, async (req, res) => {
   const { name, email, organization, predictedWinner, scoreArgentina, scoreSpain } = req.body;
