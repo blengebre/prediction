@@ -97,7 +97,7 @@ app.use('/api', dbInitMiddleware);
 // ─── Static File Serving (local dev) ─────────────────────────────────────────
 // On Vercel, the /public directory is served by the CDN — express.static is only
 // used in local development.
-app.use(express.static(path.join(__dirname, '..', 'public')));
+app.use(express.static(path.join(__dirname, 'public')));
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
