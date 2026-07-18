@@ -51,11 +51,11 @@ app.use(express.json());
 
 // ─── Static Routing Engine Patch (Local Host Fallbacks) ────────────────────────
 // Serves static assets seamlessly from the new /public folder when running locally
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '..', 'public')));
 
 // Explicit fallback rule to guarantee index.html resolves correctly at the root path '/'
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
 
 
@@ -167,5 +167,7 @@ app.post('/api/calculate-winners', async (req, res) => {
   }
 });
 
-app.listen(PORT, '0.0.0.0', () => console.log(`🚀 Prediction Engine live on port ${PORT}`));
+if (require.main === module) {
+  app.listen(PORT, '0.0.0.0', () => console.log(`🚀 Prediction Engine live on port ${PORT}`));
+}
 module.exports = app;
