@@ -99,7 +99,7 @@ app.use('/api', dbInitMiddleware);
 // used in local development.
 app.use(express.static(path.join(__dirname, 'public')));
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // ─── Voting Window Middleware ─────────────────────────────────────────────────
