@@ -104,13 +104,9 @@ app.use('/api', dbInitMiddleware);
 // used in local development.
 // 1. Remove: app.get('/', (req, res) => { ... }); (if it exists)
 // 2. Keep the static middleware for assets, but we will make index.html inaccessible via the root
-// Change this line:
-// app.use(express.static(path.join(__dirname, '..', 'public'), { index: false }));
+app.use(express.static(path.join(__dirname, '..', 'public'), { index: false }));
 
-// To this (Standard static serving):
-app.use(express.static(path.join(__dirname, '..', 'public')));
-
-//// ─── Restricted Root (index.html) ──────────────────────────────────────────
+// ─── Route: Public Predictor (RESTRICTED) ───────────────────────────────────
 app.get('/', (req, res) => {
   const now = new Date();
   const allowedStart = new Date('2026-07-18T20:00:00+03:00');
@@ -124,13 +120,8 @@ app.get('/', (req, res) => {
       </div>
     `);
   }
-  // Explicitly serve index.html for root
   res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
-
-// Remove the explicit /staff and /dashboard app.get routes 
-// IF they are physically located in the /public folder.
-// Express will find them automatically via express.static.
 
 // ─── Routes: Staff Portals (UNRESTRICTED) ───────────────────────────────────
 app.get('/staff', (req, res) => {
