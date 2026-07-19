@@ -30,13 +30,14 @@ async function initializeDatabase() {
     CREATE TABLE IF NOT EXISTS match_predictions (
       id               SERIAL       PRIMARY KEY,
       name             VARCHAR(255) NOT NULL,
+      organization     VARCHAR(255),  -- Added this line
       predicted_winner VARCHAR(50)  NOT NULL,
       score_argentina  INT          NOT NULL,
       score_spain      INT          NOT NULL,
       created_at       TIMESTAMPTZ  DEFAULT NOW()
     );
   `;
-  // ...
+  // ... rest of your code...
 
   try {
     await pool.query(createTableSQL);
@@ -120,22 +121,23 @@ function checkVotingWindow(req, res, next) {
 
 // ─── API: Submit Fan Prediction ───────────────────────────────────────────────
 app.post('/api/predict', checkVotingWindow, async (req, res) => {
-  const { name, predictedWinner, scoreArgentina, scoreSpain } = req.body;
+  // Add 'organization' to destructuring
+  const { name, organization, predictedWinner, scoreArgentina, scoreSpain } = req.body;
 
-  if (!name || !predictedWinner || scoreArgentina === undefined || scoreSpain === undefined) {
-    return res.status(400).json({ error: 'Please provide all required fields and scores.' });
+  if (!name || !organization || !predictedWinner || scoreArgentina === undefined || scoreSpain === undefined) {
+    return res.status(400).json({ error: 'Please provide all required fields, including organization.' });
   }
 
   try {
     await pool.query(
-      `INSERT INTO match_predictions (name, predicted_winner, score_argentina, score_spain)
-       VALUES ($1, $2, $3, $4)`,
-      [name.trim(), predictedWinner, parseInt(scoreArgentina, 10), parseInt(scoreSpain, 10)]
+      `INSERT INTO match_predictions (name, organization, predicted_winner, score_argentina, score_spain)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [name.trim(), organization.trim(), predictedWinner, parseInt(scoreArgentina, 10), parseInt(scoreSpain, 10)]
     );
     return res.status(200).json({ success: true, message: 'Prediction successfully locked in!' });
   } catch (err) {
     console.error('❌ /api/predict error:', err.message);
-    return res.status(500).json({ error: 'Database error processing prediction. Please try again.' });
+    return res.status(500).json({ error: 'Database error processing prediction.' });
   }
 });
 
@@ -165,7 +167,7 @@ app.get('/api/stats', async (req, res) => {
 app.get('/api/voters', async (req, res) => {
   try {
     const result = await pool.query(
-      `SELECT name, predicted_winner, score_argentina, score_spain, created_at
+      `SELECT name, organization, predicted_winner, score_argentina, score_spain, created_at
        FROM match_predictions ORDER BY created_at DESC`
     );
     res.status(200).json({ success: true, voters: result.rows });

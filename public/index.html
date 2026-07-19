@@ -541,7 +541,11 @@
           <input type="text" id="usrName" placeholder="Enter full name" autocomplete="off">
         </div>
         
-        
+        !-- ADD THIS SECTION -->
+  <div class="input-field-group">
+    <label for="usrOrg">Organization</label>
+    <input type="text" id="usrOrg" placeholder="Enter your organization" autocomplete="off">
+  </div>
 
         <div class="form-actions-dual">
           <button type="button" class="action-btn secondary-btn" onclick="transitionToStep(1)">Back</button>
@@ -635,24 +639,24 @@ function executeFinalFormSubmission() {
   const submitBtn = document.getElementById("submitBtn");
   err.style.display = "none";
 
-  // Only target the inputs that actually exist in your HTML
   const nameInput = document.getElementById("usrName");
+  const orgInput = document.getElementById("usrOrg"); // Added reference
   const argInput = document.getElementById("inputScoreArg");
   const spaInput = document.getElementById("inputScoreSpa");
 
-  // Validate existence of elements before accessing .value
-  if (!nameInput || !argInput || !spaInput) {
+  // Validate existence
+  if (!nameInput || !orgInput || !argInput || !spaInput) {
     displayFormError("Form elements are missing from the page.");
     return;
   }
 
   const name = nameInput.value.trim();
+  const org = orgInput.value.trim(); // Capture organization
   const argGoals = parseInt(argInput.value, 10);
   const spaGoals = parseInt(spaInput.value, 10);
 
-  // Validate data
-  if (!name || isNaN(argGoals) || isNaN(spaGoals) || !userSubmissionState.winner) {
-    displayFormError("Please enter your name, select a winner, and provide score predictions.");
+  if (!name || !org || isNaN(argGoals) || isNaN(spaGoals) || !userSubmissionState.winner) {
+    displayFormError("Please enter your name, organization, select a winner, and provide scores.");
     return;
   }
 
@@ -661,6 +665,7 @@ function executeFinalFormSubmission() {
 
   const userPredictionPayload = {
     name: name,
+    organization: org, // Include in payload
     predictedWinner: userSubmissionState.winner,
     scoreArgentina: argGoals,
     scoreSpain: spaGoals
@@ -671,6 +676,8 @@ function executeFinalFormSubmission() {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(userPredictionPayload)
   })
+  // ... (rest of your fetch logic)
+
   .then(async response => {
     const result = await response.json();
     if (!response.ok) {
