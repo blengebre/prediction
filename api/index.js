@@ -26,24 +26,28 @@ const pool = new Pool(poolConfig);
 
 // ─── Table Auto-Creation ───────────────────────────────────────────────────────
 async function initializeDatabase() {
-  const createTableSQL = `
-    CREATE TABLE IF NOT EXISTS match_predictions (
-      id               SERIAL       PRIMARY KEY,
-      name             VARCHAR(255) NOT NULL,
-      organization     VARCHAR(255),  -- Added this line
-      predicted_winner VARCHAR(50)  NOT NULL,
-      score_argentina  INT          NOT NULL,
-      score_spain      INT          NOT NULL,
-      created_at       TIMESTAMPTZ  DEFAULT NOW()
-    );
-  `;
-  // ... rest of your code...
-
   try {
-    await pool.query(createTableSQL);
-    console.log('✅ PostgreSQL "match_predictions" table verified.');
+    // 1. Create table if missing
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS match_predictions (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        predicted_winner VARCHAR(50) NOT NULL,
+        score_argentina INT NOT NULL,
+        score_spain INT NOT NULL,
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      );
+    `);
+
+    // 2. Add column IF IT DOES NOT EXIST (This is the critical fix)
+    await pool.query(`
+      ALTER TABLE match_predictions 
+      ADD COLUMN IF NOT EXISTS organization VARCHAR(255);
+    `);
+    
+    console.log('✅ PostgreSQL "match_predictions" schema verified.');
   } catch (err) {
-    console.error('❌ Failed to create table:', err.message);
+    console.error('❌ Failed to initialize table:', err.message);
   }
 }
 
@@ -108,7 +112,8 @@ app.get('/', (req, res) => {
 function checkVotingWindow(req, res, next) {
   const now          = new Date();
   const allowedStart = new Date('2026-07-18T20:00:00+03:00');
-  const allowedEnd   = new Date('2026-07-19T22:00:00+03:00');
+  // Current setting: 22:00 (10:00 PM)
+  const allowedEnd = new Date('2026-07-19T22:59:52+03:00');   
 
   if (now < allowedStart) {
     return res.status(403).json({ error: 'Predictions have not opened yet. Please check back later.' });
