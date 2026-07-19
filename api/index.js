@@ -102,30 +102,37 @@ app.use('/api', dbInitMiddleware);
 // ─── Static File Serving (local dev) ─────────────────────────────────────────
 // On Vercel, the /public directory is served by the CDN — express.static is only
 // used in local development.
-app.use(express.static(path.join(__dirname, '..','public')));
+// 1. Remove: app.get('/', (req, res) => { ... }); (if it exists)
+// 2. Keep the static middleware for assets, but we will make index.html inaccessible via the root
+app.use(express.static(path.join(__dirname, '..', 'public'), { index: false }));
+
+// ─── Route: Public Predictor (RESTRICTED) ───────────────────────────────────
 app.get('/', (req, res) => {
+  const now = new Date();
+  const allowedStart = new Date('2026-07-18T20:00:00+03:00');
+  const allowedEnd = new Date('2026-07-19T22:00:52+03:00');
+
+  if (now < allowedStart || now > allowedEnd) {
+    return res.status(403).send(`
+      <div style="font-family:sans-serif; text-align:center; padding-top:50px;">
+        <h1>⚽ Prediction Portal Closed</h1>
+        <p>The submission window for the World Cup Predictor has ended.</p>
+      </div>
+    `);
+  }
   res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
 
-// ─── Voting Window Middleware ─────────────────────────────────────────────────
-// Allow submissions only between the configured open/close times.
-function checkVotingWindow(req, res, next) {
-  const now          = new Date();
-  const allowedStart = new Date('2026-07-18T20:00:00+03:00');
-  // Current setting: 22:00 (10:00 PM)
-  const allowedEnd = new Date('2026-07-19T22:59:52+03:00');   
+// ─── Routes: Staff Portals (UNRESTRICTED) ───────────────────────────────────
+app.get('/staff', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'public', 'staff.html'));
+});
 
-  if (now < allowedStart) {
-    return res.status(403).json({ error: 'Predictions have not opened yet. Please check back later.' });
-  }
-  if (now > allowedEnd) {
-    return res.status(403).json({ error: 'Voting is now closed! The match has kicked off.' });
-  }
-  next();
-}
-
+app.get('/dashboard', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'public', 'dashboard.html'));
+});
 // ─── API: Submit Fan Prediction ───────────────────────────────────────────────
-app.post('/api/predict', checkVotingWindow, async (req, res) => {
+app.post('/api/predict', async (req, res) => {
   // Add 'organization' to destructuring
   const { name, organization, predictedWinner, scoreArgentina, scoreSpain } = req.body;
 
