@@ -629,59 +629,67 @@
       gsap.to("#poolBarSpa", { width: `${pctSpa}%`, duration: 1, ease: "power2.out" });
     }
 
-    function executeFinalFormSubmission() {
-      const err = document.getElementById("errorDisplay");
-      const submitBtn = document.getElementById("submitBtn");
-      err.style.display = "none";
+    /* ─── API CONNECTIVITY MECHANISMS (UPDATED FOR SCHEMA) ─── */
+function executeFinalFormSubmission() {
+  const err = document.getElementById("errorDisplay");
+  const submitBtn = document.getElementById("submitBtn");
+  err.style.display = "none";
 
-      const name = document.getElementById("usrName").value.trim();
-      const email = document.getElementById("usrEmail").value.trim();
-      const org = document.getElementById("usrOrg").value.trim();
-      const argGoals = parseInt(document.getElementById("inputScoreArg").value, 10);
-      const spaGoals = parseInt(document.getElementById("inputScoreSpa").value, 10);
+  // Only target the inputs that actually exist in your HTML
+  const nameInput = document.getElementById("usrName");
+  const argInput = document.getElementById("inputScoreArg");
+  const spaInput = document.getElementById("inputScoreSpa");
 
-      if (!name || !email || isNaN(argGoals) || isNaN(spaGoals)) {
-        displayFormError("All identity metrics and score predictions are required.");
-        return;
-      }
+  // Validate existence of elements before accessing .value
+  if (!nameInput || !argInput || !spaInput) {
+    displayFormError("Form elements are missing from the page.");
+    return;
+  }
 
-      submitBtn.innerText = "Processing...";
-      submitBtn.disabled = true;
+  const name = nameInput.value.trim();
+  const argGoals = parseInt(argInput.value, 10);
+  const spaGoals = parseInt(spaInput.value, 10);
 
-      // Perfectly matches keys expected by app.post('/api/predict')
-      const userPredictionPayload = {
-        name: name,
-        email: email,
-        organization: org,
-        predictedWinner: userSubmissionState.winner,
-        scoreArgentina: argGoals,
-        scoreSpain: spaGoals
-      };
+  // Validate data
+  if (!name || isNaN(argGoals) || isNaN(spaGoals) || !userSubmissionState.winner) {
+    displayFormError("Please enter your name, select a winner, and provide score predictions.");
+    return;
+  }
 
-      fetch(API_SUBMIT_ENDPOINT, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(userPredictionPayload)
-      })
-      .then(async response => {
-        const result = await response.json();
-        if (!response.ok) {
-          throw new Error(result.error || "Database transaction rejected.");
-        }
-        return result;
-      })
-      .then(() => {
-        loadLiveDatabaseStats(); // Fetch fresh data immediately to update the pool distribution charts
-        transitionToStep(3);
-      })
-      .catch(error => {
-        displayFormError(error.message);
-      })
-      .finally(() => {
-        submitBtn.innerText = "Submit Entry";
-        submitBtn.disabled = false;
-      });
+  submitBtn.innerText = "Processing...";
+  submitBtn.disabled = true;
+
+  const userPredictionPayload = {
+    name: name,
+    predictedWinner: userSubmissionState.winner,
+    scoreArgentina: argGoals,
+    scoreSpain: spaGoals
+  };
+
+  fetch(API_SUBMIT_ENDPOINT, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(userPredictionPayload)
+  })
+  .then(async response => {
+    const result = await response.json();
+    if (!response.ok) {
+      throw new Error(result.error || "Database transaction rejected.");
     }
+    return result;
+  })
+  .then(() => {
+    loadLiveDatabaseStats(); 
+    transitionToStep(3);
+  })
+  .catch(error => {
+    displayFormError(error.message);
+  })
+  .finally(() => {
+    submitBtn.innerText = "Submit Entry";
+    submitBtn.disabled = false;
+  });
+}
 
     function displayFormError(msg) {
       const err = document.getElementById("errorDisplay");
