@@ -195,7 +195,7 @@ app.post('/api/calculate-winners', async (req, res) => {
   const { actualWinner, actualScoreArgentina, actualScoreSpain } = req.body;
 
   if (!actualWinner || actualScoreArgentina === undefined || actualScoreSpain === undefined) {
-    return res.status(400).json({ error: 'Missing actual final match result parameters.' });
+    return res.status(400).json({ error: 'Missing result parameters.' });
   }
 
   const rArg = parseInt(actualScoreArgentina, 10);
@@ -203,29 +203,35 @@ app.post('/api/calculate-winners', async (req, res) => {
   const rWinner = actualWinner;
 
   try {
-    // Get all predictions
     const { rows } = await pool.query('SELECT * FROM match_predictions');
     
-    // Calculate points for every prediction
     const ranked = rows.map(p => {
       let points = 0;
       const pArg = p.score_argentina;
       const pSpa = p.score_spain;
       const pWinner = pArg > pSpa ? 'Argentina' : (pSpa > pArg ? 'Spain' : 'Draw');
 
-      if (pArg === rArg && pSpa === rSpa) points += 1000; // Exact match
-      if (pWinner === rWinner) points += 300;            // Winner match
-      if ((pArg - pSpa) === (rArg - rSpa)) points += 200; // Goal difference
-      if ((pArg + pSpa) === (rArg + rSpa)) points += 100; // Total goals
+      // Scoring Logic
+      if (pArg === rArg && pSpa === rSpa) points += 1000;
+      if (pWinner === rWinner) points += 300;
+      if ((pArg - pSpa) === (rArg - rSpa)) points += 200;
+      if ((pArg + pSpa) === (rArg + rSpa)) points += 100;
       
       const totalError = Math.abs(pArg - rArg) + Math.abs(pSpa - rSpa);
-      points -= (totalError * 20); // Penalty for error
+      points -= (totalError * 20);
 
       return { ...p, points };
     });
 
-    // Sort by Points DESC, then by Submission Date ASC (as a tiebreaker)
-    ranked.sort((a, b) => b.points - a.points || new Date(a.created_at) - new Date(b.created_at));
+    // REFINED SORTING:
+    // 1. Higher points first
+    // 2. If points are tied, earliest submission (created_at ASC) wins
+    ranked.sort((a, b) => {
+      if (b.points !== a.points) {
+        return b.points - a.points;
+      }
+      return new Date(a.created_at) - new Date(b.created_at);
+    });
 
     res.status(200).json({ success: true, winners: ranked.slice(0, 5) });
   } catch (err) {
