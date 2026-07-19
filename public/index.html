@@ -88,12 +88,32 @@
       padding: 24px;
       margin: auto;
     }
+.brand-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* This centers everything horizontally */
+  text-align: center;
+  padding: 20px;
+}
 
-    .brand-header {
-      text-align: center;
-      margin-bottom: 24px;
-    }
+.logo-container {
+  display: flex;       /* This puts items in a row */
+  align-items: center; /* This aligns them vertically in the middle */
+  justify-content: center; /* This ensures they are centered horizontally */
+  gap: 20px;           /* Adds space between the two logos */
+  margin-bottom: 10px;
+}
 
+/* Ensure the logos are treated as distinct blocks */
+.logo-cbe {
+  height: 45px; 
+  width: auto;
+}
+
+.logo-visa {
+  height: 25px; 
+  width: auto;
+}
     .brand-header .event-tag {
       font-size: 11px;
       text-transform: uppercase;
@@ -258,20 +278,30 @@
     /* ────────────────────────────────────────────────────────
        5. KINETIC GRAPHICS MATRIX
        ──────────────────────────────────────────────────────── */
-    .field-action-container {
-      position: absolute;
-      inset: 0; width: 100%; height: 100%;
-      z-index: 1; pointer-events: none;
-      overflow: hidden;
-    }
+    /* ────────────────────────────────────────────────────────
+   5. KINETIC GRAPHICS MATRIX (UPDATED)
+   ──────────────────────────────────────────────────────── */
+/* ────────────────────────────────────────────────────────
+   5. KINETIC GRAPHICS MATRIX (UPDATED)
+   ──────────────────────────────────────────────────────── */
+.field-action-container {
+  position: fixed; /* Changed from absolute to fixed */
+  bottom: 0;       /* Align to bottom */
+  left: 0; 
+  width: 100%; 
+  height: 200px;   /* Constrain height */
+  z-index: 5;      /* Ensure it sits above the background but below UI */
+  pointer-events: none;
+  overflow: hidden;
+}
 
-    .player-ball-group {
-      position: absolute;
-      top: 50%; left: -200px;
-      width: 140px; height: 180px;
-      transform: translateY(-50%);
-    }
-
+.player-ball-group {
+  position: absolute;
+  bottom: 20px;    /* Position relative to the container bottom */
+  left: -200px;
+  width: 140px; 
+  height: 180px;
+}
     .player-character {
       position: absolute; bottom: 0; left: 0;
       width: 80px; height: 150px;
@@ -442,9 +472,13 @@
   <!-- 2. INTERACTIVE WORKSPACE CARD -->
   <main class="ui-wrapper">
     <header class="brand-header">
-      <span class="event-tag">CBE &amp; Visa Presents</span>
-      <h1>Final Match Predictor</h1>
-    </header>
+  <div class="logo-container">
+    <img src="cbe-logo-transparent.png" alt="CBE Logo" class="logo-cbe">-
+    <img src="visa-logo4.png" alt="Visa Logo" class="logo-visa">
+  </div>
+  <span class="event-tag">CBE &amp; Visa Presents</span>
+  <h1>Final Match Predictor</h1>
+</header>
 
     <div class="glass-card" id="predictorCard">
       <canvas class="canvas-dust-layer" id="goldDustCanvas"></canvas>
@@ -683,7 +717,7 @@
       const spinningBall = document.getElementById("spinningBall");
       const runner = document.getElementById("vectorRunner");
 
-      gsap.set(rig, { x: -250, y: "50%" });
+      gsap.set(rig, { x: -250, top: 10 });
       gsap.set(ball, { x: 90, y: 0 });
       gsap.set(runner, { y: 0 });
 
@@ -702,11 +736,11 @@
         .to(runner, { y: -8, duration: 0.12, ease: "sine.inOut", repeat: 7, yoyo: true }, 0);
 
       const ballRotationLoop = gsap.to(spinningBall, { rotation: 360, duration: 0.4, ease: "none", repeat: -1 });
-
       const dustInterval = setInterval(() => {
-        const currentRigX = gsap.getProperty(rig, "x");
-        if(currentRigX > -150 && currentRigX < fieldWidth + 100) { spawnFootDustParticle(currentRigX + 30, window.innerHeight * 0.5 + 65); }
-      }, 90);
+             const currentRigX = gsap.getProperty(rig, "x");
+    // Spawn dust near the top, where the feet now are (adjusted for scale)
+    spawnFootDustParticle(currentRigX + 30, 100); 
+  }, 90);
 
       const flightTimeline = gsap.timeline({
         onComplete: () => {
