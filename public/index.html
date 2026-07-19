@@ -1,101 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>CBE & Visa — Final Match Predictor</title>
-  
-  <!-- GSAP Core & MotionPath CDN Modules -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/MotionPathPlugin.min.js"></script>
-
+  <meta charset="UTF-8">
+  <title>Thank You | CBE & Visa</title>
   <style>
-    /* ────────────────────────────────────────────────────────
-       1. VARIABLES & DESIGN TOKENS
-       ──────────────────────────────────────────────────────── */
-    :root { 
-      --primary-space: #0b071a; 
-      --accent-gold: #D4AF37; 
-      --accent-gold-gradient: linear-gradient(135deg, #FFE07D 0%, #D4AF37 50%, #A37F14 100%);
-      --bg-universe: radial-gradient(circle at 50% 40%, #1e113a 0%, #0c061a 65%, #05020a 100%);
-      --card-bg: rgba(18, 11, 36, 0.65);
-      --card-border: rgba(212, 175, 55, 0.22);
-      --input-base: rgba(255, 255, 255, 0.04);
-      --text-main: #ffffff;
-      --text-muted: #9c8fb3;
-      --font-stack: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    :root {
+      --deep-purple: #0f0c24;
+      --gold: #D4AF37;
+      --glass: rgba(255, 255, 255, 0.05);
+      --text: #ffffff;
     }
-    
-    /* ────────────────────────────────────────────────────────
-       2. RESET & BASE ENVIRONMENT
-       ──────────────────────────────────────────────────────── */
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    
-    body { 
-      background: var(--bg-universe); 
-      color: var(--text-main);
-      font-family: var(--font-stack);
-      min-height: 100vh;
-      overflow-x: hidden;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      position: relative;
+    body {
+      background: radial-gradient(circle at center, var(--deep-purple), #000);
+      color: var(--text);
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh;
     }
-
-    .viewport-parallax-wrapper {
-      position: fixed;
-      inset: -50px;
-      width: calc(100% + 100px);
-      height: calc(100vh + 100px);
-      z-index: 0;
-      pointer-events: none;
-      transform-style: preserve-3d;
-    }
-
-    /* ────────────────────────────────────────────────────────
-       3. STADIUM ENVIRONMENT LAYER
-       ──────────────────────────────────────────────────────── */
-    .sky-vignette {
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(circle at center, transparent 30%, rgba(5, 2, 10, 0.6) 100%);
-    }
-
-    .spotlight-system {
-      position: absolute;
-      top: 0; left: 0; width: 100%; height: 100%;
-      mix-blend-mode: screen;
-      opacity: 0.8;
-    }
-
-    .pitch-glow {
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      height: 40vh;
-      background: radial-gradient(circle at 50% 100%, rgba(212, 175, 55, 0.15), transparent 70%);
-    }
-
-    /* ────────────────────────────────────────────────────────
-       4. INTERACTIVE USER INTERFACE LAYER
-       ──────────────────────────────────────────────────────── */
-    .ui-wrapper {
-      position: relative;
-      z-index: 10;
-      width: 100%;
-      max-width: 460px;
-      padding: 24px;
-      margin: auto;
-    }
+    /* New wrapper to stack items vertically */
+.main-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 20px;
+}
+/* Ensure the header isn't too cramped */
 .brand-header {
+  margin-bottom: 30px;
+}
+/* Adjust the logo heights as needed */
+.logo-cbe, .logo-visa {
+  height: 50px;
+  width: auto;
+}
+    .brand-header {
   display: flex;
   flex-direction: column;
   align-items: center; /* This centers everything horizontally */
   text-align: center;
   padding: 20px;
 }
-
 .logo-container {
   display: flex;       /* This puts items in a row */
   align-items: center; /* This aligns them vertically in the middle */
@@ -103,728 +48,137 @@
   gap: 20px;           /* Adds space between the two logos */
   margin-bottom: 10px;
 }
-
 /* Ensure the logos are treated as distinct blocks */
 .logo-cbe {
   height: 45px; 
   width: auto;
 }
-
 .logo-visa {
   height: 45px; 
   width: auto;
 }
-    .brand-header .event-tag {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 4px;
-      font-weight: 700;
-      color: var(--accent-gold);
-      text-shadow: 0 0 15px rgba(212,175,55,0.4);
-      display: inline-block;
-      margin-bottom: 8px;
+.toast-hidden {
+  display: none;
+}
+
+.toast-visible {
+  position: fixed;
+  bottom: 30px;
+  background: var(--gold);
+  color: var(--deep-purple);
+  padding: 15px 30px;
+  border-radius: 10px;
+  font-weight: bold;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  animation: fadeIn 0.3s;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+    .box {
+      background: var(--glass);
+      backdrop-filter: blur(10px);
+      padding: 40px;
+      border-radius: 20px;
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      text-align: center;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     }
-
-    .brand-header h1 {
-      font-size: 26px;
-      font-weight: 900;
-      letter-spacing: -0.5px;
-      background: linear-gradient(180deg, #ffffff 50%, #c5b8df 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+    h2 { color: var(--gold); margin-bottom: 10px; }
+    input, textarea {
+      width: 100%;
+      margin: 15px 0;
+      padding: 12px;
+      background: rgba(0,0,0,0.2);
+      border: 1px solid var(--gold);
+      color: white;
+      border-radius: 8px;
+      box-sizing: border-box;
     }
-
-    .glass-card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 24px;
-      padding: 32px;
-      backdrop-filter: blur(30px) saturate(110%);
-      -webkit-backdrop-filter: blur(30px) saturate(110%);
-      box-shadow: 0 40px 100px rgba(0,0,0,0.65), inset 0 1px 1px rgba(255,255,255,0.08);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .glass-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0; height: 3px;
-      background: var(--accent-gold-gradient);
-    }
-
-    .canvas-dust-layer {
-      position: absolute;
-      inset: 0;
-      z-index: 1;
-      pointer-events: none;
-    }
-
-    .form-step {
-      display: none;
-      position: relative;
-      z-index: 2;
-    }
-
-    .form-step.active { display: block; }
-
-    h2 { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
-    .step-instruction { font-size: 13px; color: var(--text-muted); margin-bottom: 24px; }
-
-    .team-selection-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 28px; }
-
-    .team-card {
-      background: rgba(255,255,255,0.02);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 16px;
-      padding: 20px 12px;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-      transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-    }
-
-    .team-card:hover {
-      background: rgba(255,255,255,0.06);
-      border-color: rgba(212,175,55,0.4);
-      transform: translateY(-4px);
-    }
-
-    .team-card.selected {
-      background: linear-gradient(135deg, rgba(214,175,55,0.15) 0%, rgba(11,7,26,0.4) 100%);
-      border-color: var(--accent-gold);
-      box-shadow: 0 0 25px rgba(212,175,55,0.2), inset 0 0 0 1px var(--accent-gold);
-    }
-
-    .team-card .flag { font-size: 28px; }
-    .team-card .team-name { font-size: 14px; font-weight: 700; color: #fff; }
-
-    .score-board { display: flex; justify-content: space-around; align-items: center; margin-bottom: 32px; }
-    .score-node { text-align: center; }
-    .score-node label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; display: block; margin-bottom: 6px; }
-    
-    .score-node input {
-      width: 80px; height: 65px;
-      background: var(--input-base);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 14px;
-      font-size: 32px; font-weight: 700; color: #fff;
-      text-align: center; outline: none;
-      transition: all 0.25s;
-    }
-
-    .score-node input:focus {
-      border-color: var(--accent-gold);
-      background: rgba(255,255,255,0.08);
-      box-shadow: 0 0 15px rgba(212,175,55,0.3);
-    }
-
-    .score-divider { font-size: 24px; color: var(--accent-gold); font-weight: 300; margin-top: 18px; }
-
-    .action-btn {
-      width: 100%; padding: 16px;
-      border-radius: 12px; font-size: 15px; font-weight: 700;
-      letter-spacing: 1.5px; text-transform: uppercase;
-      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
-      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    }
-
     .prime-btn {
-      background: var(--accent-gold-gradient); color: #0b071a; border: none;
-      box-shadow: 0 4px 15px rgba(212,175,55,0.25);
+      background: linear-gradient(45deg, var(--gold), #ffcc33);
+      color: var(--deep-purple);
+      border: none;
+      padding: 12px 25px;
+      cursor: pointer;
+      border-radius: 8px;
+      width: 100%;
+      font-weight: bold;
+      transition: transform 0.2s;
     }
-
-    .prime-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(212,175,55,0.45); filter: brightness(1.1); }
-    .arrow-icon { width: 18px; height: 18px; }
-
-    .form-actions-dual { display: grid; grid-template-columns: 80px 1fr; gap: 12px; }
-    .secondary-btn { background: transparent; border: 1px solid rgba(255,255,255,0.15); color: #fff; }
-    .secondary-btn:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.3); }
-
-    .input-field-group { margin-bottom: 20px; }
-    .input-field-group label { display: block; font-size: 11px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; font-weight: 600; }
-    .input-field-group input {
-      width: 100%; padding: 14px; background: var(--input-base);
-      border: 1px solid rgba(255,255,255,0.12); border-radius: 10px;
-      color: #fff; font-size: 15px; outline: none; transition: border 0.2s;
-    }
-    .input-field-group input:focus { border-color: var(--accent-gold); }
-
-    /* Live Pool Stat Component Metrics UI */
-    .live-metrics {
-      margin-top: 32px; padding-top: 24px;
-      border-top: 1px solid rgba(255,255,255,0.08);
-    }
-    .metrics-summary { font-size: 11px; text-transform: uppercase; text-align: center; color: var(--text-muted); margin-bottom: 16px; letter-spacing: 0.5px;}
-    .progress-track-wrapper { margin-bottom: 12px; }
-    .track-label { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px; color: var(--text-muted); }
-    .track-label .voter-count { color: var(--accent-gold); font-weight: 700; }
-    .track-bar { background: rgba(255,255,255,0.06); height: 6px; border-radius: 3px; overflow: hidden; }
-    .track-bar .fill { height: 100%; background: var(--accent-gold-gradient); width: 0%; transition: width 1.2s cubic-bezier(0.1, 1, 0.1, 1); }
-
-    .step-success-state { text-align: center; padding: 10px 0; }
-    .premium-badge-check {
-      width: 65px; height: 65px; border-radius: 50%;
-      border: 2px solid var(--accent-gold); margin: 0 auto 20px auto;
-      display: flex; align-items: center; justify-content: center;
-      background: rgba(214,175,55,0.05); position: relative;
-    }
-    .premium-badge-check .check-mark { color: var(--accent-gold); font-size: 26px; font-weight: bold; }
-    .event-countdown-footer { margin-top: 24px; font-size: 12px; text-transform: uppercase; color: var(--accent-gold); letter-spacing: 1px; font-weight: 600; }
-    .error-banner { background: rgba(235, 87, 87, 0.12); border: 1px solid #eb5757; color: #ff8a8a; font-size: 13px; padding: 12px; border-radius: 10px; margin-bottom: 18px; text-align: center; }
-
-    /* ────────────────────────────────────────────────────────
-       5. KINETIC GRAPHICS MATRIX
-       ──────────────────────────────────────────────────────── */
-    /* ────────────────────────────────────────────────────────
-   5. KINETIC GRAPHICS MATRIX (UPDATED)
-   ──────────────────────────────────────────────────────── */
-/* ────────────────────────────────────────────────────────
-   5. KINETIC GRAPHICS MATRIX (UPDATED)
-   ──────────────────────────────────────────────────────── */
-.field-action-container {
-  position: fixed; /* Changed from absolute to fixed */
-  bottom: 0;       /* Align to bottom */
-  left: 0; 
-  width: 100%; 
-  height: 200px;   /* Constrain height */
-  z-index: 5;      /* Ensure it sits above the background but below UI */
-  pointer-events: none;
-  overflow: hidden;
-}
-
-.player-ball-group {
-  position: absolute;
-  bottom: 20px;    /* Position relative to the container bottom */
-  left: -200px;
-  width: 140px; 
-  height: 180px;
-}
-    .player-character {
-      position: absolute; bottom: 0; left: 0;
-      width: 80px; height: 150px;
-    }
-
-    .player-torso {
-      position: absolute; top: 35px; left: 15px;
-      width: 45px; height: 50px;
-      background: linear-gradient(90deg, #1b4d22 30%, #cca025 30%, #cca025 50%, #1b4d22 50%, #1b4d22 80%, #cca025 80%);
-      background-size: 24px 100%; border-radius: 10px 10px 4px 4px;
-    }
-
-    .player-head {
-      position: absolute; top: -34px; left: 6px;
-      width: 32px; height: 34px; background: #96643d;
-      border-radius: 50% 50% 45% 45%;
-    }
-
-    .player-hair {
-      position: absolute; top: -8px; left: -2px; width: 36px; height: 20px;
-      background: #1f140e; border-radius: 6px 6px 0 0;
-      box-shadow: 2px -3px 0 #1f140e, -2px -2px 0 #1f140e;
-    }
-
-    .arm {
-      position: absolute; top: 4px; width: 12px; height: 38px;
-      background: #96643d; border-radius: 6px; transform-origin: top center;
-    }
-    .arm-front { left: 14px; background: linear-gradient(to bottom, #1b4d22 40%, #96643d 40%); }
-    .arm-back { left: 18px; background: linear-gradient(to bottom, #133a18 40%, #7c5130 40%); opacity: 0.75; }
-
-    .shorts { position: absolute; top: 84px; left: 15px; width: 45px; height: 20px; background: #2a3342; border-radius: 0 0 6px 6px; }
-
-    .leg { position: absolute; top: 100px; width: 14px; height: 48px; background: #96643d; transform-origin: top center; }
-    .leg-front { left: 18px; background: #96643d; }
-    .leg-back { left: 28px; background: #7c5130; opacity: 0.8; }
-    .foot { position: absolute; bottom: -4px; left: 0; width: 22px; height: 10px; background: #fff; border-radius: 0 6px 4px 0; }
-
-    .ball-subsystem { position: absolute; bottom: -20px; left: 90px; width: 34px; height: 34px; }
-
-    .vintage-football {
-      width: 100%; height: 100%; border-radius: 50%;
-      background: #e6dac3;
-      background-image: 
-        radial-gradient(circle at 10px 10px, #ffffff 0%, #d4c4a5 50%, #61553b 100%),
-        repeating-linear-gradient(45deg, rgba(0,0,0,0.05) 0px, rgba(0,0,0,0.05) 2px, transparent 2px, transparent 6px);
-      box-shadow: 0 10px 20px rgba(0,0,0,0.5), 0 0 15px rgba(212,175,55,0.25);
-    }
-
-    .particle-dust { position: absolute; background: rgba(212, 175, 55, 0.35); border-radius: 50%; filter: blur(2px); pointer-events: none; }
-    .ball-trail-sparkle { position: absolute; background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(212,175,55,0) 75%); border-radius: 50%; pointer-events: none; }
-
-    /* ────────────────────────────────────────────────────────
-       6. RESPONSIVE BREAKPOINTS
-       ──────────────────────────────────────────────────────── */
-
-    /* Tablet / large phone (≤ 600px) */
-    @media (max-width: 600px) {
-      .ui-wrapper {
-        padding: 16px 12px;
-        max-width: 100%;
-      }
-      .glass-card {
-        padding: 28px 20px;
-        border-radius: 20px;
-      }
-      .brand-header { margin-bottom: 18px; }
-      .brand-header h1 { font-size: 22px; }
-      .brand-header .event-tag { font-size: 10px; letter-spacing: 3px; }
-
-      .team-selection-grid { gap: 12px; margin-bottom: 22px; }
-      .team-card { padding: 18px 10px; border-radius: 14px; }
-      .team-card .flag { font-size: 30px; }
-      .team-card .team-name { font-size: 13px; }
-
-      .score-board { gap: 0; }
-      .score-node input { width: 76px; height: 62px; font-size: 28px; }
-
-      h2 { font-size: 18px; }
-      .step-instruction { font-size: 12px; margin-bottom: 20px; }
-
-      .action-btn { padding: 15px; font-size: 14px; }
-      .input-field-group input { padding: 13px; font-size: 15px; }
-
-      .live-metrics { margin-top: 24px; padding-top: 20px; }
-    }
-
-    /* Small phones (≤ 400px) */
-    @media (max-width: 400px) {
-      .ui-wrapper { padding: 12px 10px; }
-      .glass-card { padding: 22px 14px; border-radius: 18px; }
-      .brand-header h1 { font-size: 19px; }
-      .brand-header .event-tag { font-size: 9px; letter-spacing: 2px; }
-
-      .team-selection-grid { gap: 8px; }
-      .team-card { padding: 14px 6px; border-radius: 12px; gap: 7px; }
-      .team-card .flag { font-size: 26px; }
-      .team-card .team-name { font-size: 12px; }
-
-      .score-node input { width: 66px; height: 56px; font-size: 24px; border-radius: 10px; }
-      .score-divider { font-size: 20px; margin-top: 16px; }
-
-      h2 { font-size: 17px; }
-      .action-btn { padding: 13px; font-size: 13px; letter-spacing: 1px; }
-      .form-actions-dual { grid-template-columns: 70px 1fr; gap: 8px; }
-    }
-
-    /* Touch: remove hover animations on touch devices to prevent sticky states */
-    @media (hover: none) {
-      .team-card:hover { transform: none; background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.08); }
-      .prime-btn:hover { transform: none; box-shadow: 0 4px 15px rgba(212,175,55,0.25); filter: none; }
-      /* Add tap feedback instead */
-      .team-card:active { background: rgba(255,255,255,0.06); border-color: rgba(212,175,55,0.4); transform: scale(0.97); }
-      .action-btn:active { transform: scale(0.98); opacity: 0.9; }
-    }
-
-    /* iOS safe area support for notched phones */
-    @supports (padding: env(safe-area-inset-bottom)) {
-      .ui-wrapper {
-        padding-bottom: calc(24px + env(safe-area-inset-bottom));
-      }
-    }
+    .prime-btn:hover { transform: scale(1.02); }
+    .prime-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
   </style>
 </head>
 <body>
+  <!-- Main Container -->
+  <div class="main-wrapper">
 
-  <!-- 1. PARALLAX STADIUM BACKGROUND -->
-  <div class="viewport-parallax-wrapper" id="cameraUniverse">
-    <div class="sky-vignette"></div>
-    
-    <svg class="spotlight-system" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
-      <defs>
-        <radialGradient id="gradLeft" cx="15%" cy="0%" r="85%">
-          <stop offset="0%" stop-color="rgba(255, 235, 175, 0.3)" />
-          <stop offset="40%" stop-color="rgba(255, 215, 0, 0.08)" />
-          <stop offset="100%" stop-color="rgba(11, 7, 26, 0)" />
-        </radialGradient>
-        <radialGradient id="gradRight" cx="85%" cy="0%" r="85%">
-          <stop offset="0%" stop-color="rgba(255, 235, 175, 0.3)" />
-          <stop offset="40%" stop-color="rgba(255, 215, 0, 0.08)" />
-          <stop offset="100%" stop-color="rgba(11, 7, 26, 0)" />
-        </radialGradient>
-      </defs>
-      <path id="spotlightLeft" d="M 200,-50 L 850,1130 L -100,1130 Z" fill="url(#gradLeft)" />
-      <path id="spotlightRight" d="M 1720,-50 L 2020,1130 L 1070,1130 Z" fill="url(#gradRight)" />
-    </svg>
-
-    <div class="field-action-container">
-      <div class="player-ball-group" id="playerBallRig">
-        <div class="player-character" id="vectorRunner">
-          <div class="player-torso">
-            <div class="player-head"><div class="player-hair"></div></div>
-            <div class="arm arm-back" id="armB"></div>
-            <div class="arm arm-front" id="armF"></div>
-          </div>
-          <div class="shorts"></div>
-          <div class="leg leg-back" id="legB"><div class="foot"></div></div>
-          <div class="leg leg-front" id="legF"><div class="foot"></div></div>
-        </div>
-        <div class="ball-subsystem" id="footballContainer">
-          <div class="vintage-football" id="spinningBall"></div>
-        </div>
-      </div>
-    </div>
-    <div class="pitch-glow"></div>
-  </div>
-
-  <!-- 2. INTERACTIVE WORKSPACE CARD -->
-  <main class="ui-wrapper">
     <header class="brand-header">
-  <div class="logo-container">
-    <img src="cbe-logo-transparent.png" alt="CBE Logo" class="logo-cbe">-
-    <img src="visa-logo-white-transparent(1).png" alt="Visa Logo" class="logo-visa">
-  </div>
-  <span class="event-tag">CBE &amp; Visa Presents</span>
-  <h1>Final Match Predictor</h1>
-</header>
+      <div class="logo-container">
+        <img src="/cbe-logo-transparent.png" alt="CBE Logo" class="logo-cbe">
+        <span style="color:white; opacity:0.5; font-size: 20px;">-</span>
+        <img src="/visa-logo-white-transparent(1).png" alt="Visa Logo" class="logo-visa">
+      </div>
+    </header>
+    <div class="box">
+      <h2>Thank You!</h2>
+      <p>The prediction window is closed. Your presence was appreciated.</p>
 
-    <div class="glass-card" id="predictorCard">
-      <canvas class="canvas-dust-layer" id="goldDustCanvas"></canvas>
-      
-      <div id="errorDisplay" class="error-banner" style="display: none;"></div>
-
-      <!-- STEP 1: PREDICTION INPUTS -->
-      <section id="step1" class="form-step active">
-        <h2>1. Predict the Outcome</h2>
-        <p class="step-instruction">Choose the projected winning side and specify total final match goals.</p>
-        
-        <div class="team-selection-grid">
-          <button type="button" class="team-card" id="cardArgentina" onclick="selectWinnerSide('Argentina')">
-            <span class="flag">🇦🇷</span>
-            <span class="team-name">Argentina</span>
-          </button>
-          <button type="button" class="team-card" id="cardSpain" onclick="selectWinnerSide('Spain')">
-            <span class="flag">🇪🇸</span>
-            <span class="team-name">Spain</span>
-          </button>
-        </div>
-
-        <div class="score-board">
-          <div class="score-node">
-            <label for="inputScoreArg">ARG Goals</label>
-            <input type="number" id="inputScoreArg" min="0" value="0" inputmode="numeric">
-          </div>
-          <div class="score-divider">&times;</div>
-          <div class="score-node">
-            <label for="inputScoreSpa">SPA Goals</label>
-            <input type="number" id="inputScoreSpa" min="0" value="0" inputmode="numeric">
-          </div>
-        </div>
-
-        <button type="button" class="action-btn prime-btn" onclick="transitionToStep(2)">
-          <span>Next Step</span>
-          <svg class="arrow-icon" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
-        </button>
-
-        <footer class="live-metrics">
-          <div class="metrics-summary" id="poolTotalText">Connecting to DB Ledger...</div>
-          <div class="progress-track-wrapper">
-            <div class="track-label"><span>Argentina Selection</span><span class="voter-count" id="txtCountArg">...</span></div>
-            <div class="track-bar"><div id="poolBarArg" class="fill"></div></div>
-          </div>
-          <div class="progress-track-wrapper">
-            <div class="track-label"><span>Spain Selection</span><span class="voter-count" id="txtCountSpa">...</span></div>
-            <div class="track-bar"><div id="poolBarSpa" class="fill"></div></div>
-          </div>
-        </footer>
-      </section>
-
-      <!-- STEP 2: ATTENDEE CREATION -->
-      <section id="step2" class="form-step">
-        <h2>2. Attendee Registration</h2>
-        <p class="step-instruction">Attach your predictive match projection configurations to your guest record.</p>
-        
-        <div class="input-field-group">
-          <label for="usrName">Full Name</label>
-          <input type="text" id="usrName" placeholder="Enter full name" autocomplete="off">
-        </div>
-        
-      
-  <div class="input-field-group">
-    <label for="usrOrg">Organization</label>
-    <input type="text" id="usrOrg" placeholder="Enter your organization" autocomplete="off">
-  </div>
-
-        <div class="form-actions-dual">
-          <button type="button" class="action-btn secondary-btn" onclick="transitionToStep(1)">Back</button>
-          <button type="button" class="action-btn prime-btn" id="submitBtn" onclick="executeFinalFormSubmission()">Submit Entry</button>
-        </div>
-      </section>
-
-      <!-- STEP 3: SUCCESS TRANSITION -->
-      <!-- STEP 3: SUCCESS TRANSITION -->
-<section id="step3" class="form-step step-success-state">
-  <div class="premium-badge-check">
-    <span class="check-mark">✓</span>
-  </div>
-  <h2>Prediction Logged Successfully</h2>
-  <p style="color: var(--text-muted); font-size: 14px; line-height: 1.6;">
-    Your entry configuration has been committed to the event ledger.
-  </p>
-  
-  <!-- Add this button to link to the trivia game -->
-
-  
-  <div class="event-countdown-footer" style="margin-top:20px;">
-    Enjoy the VIP Match Lounge Experience Tonight.
-  </div>
-</section>
-
+      <form id="feedbackForm">
+        <input type="text" id="fbName" placeholder="Your Name" required>
+        <textarea id="fbMessage" placeholder="Share your experience..." rows="4" required></textarea>
+        <button type="submit" class="prime-btn" id="fbSubmit">Submit Feedback</button>
+      </form>
     </div>
-  </main>
-
-  <!-- ────────────────────────────────────────────────────────
-     6. BACKEND API & DATA CONNECTOR PLATFORM ENGINE
-     ──────────────────────────────────────────────────────── -->
+   <!-- Toast Notification -->
+<div id="toast" class="toast-hidden">
+  <p>Thank you for your feedback!</p>
+</div>
+  </div>
   <script>
-    gsap.registerPlugin(MotionPathPlugin);
+    document.getElementById('feedbackForm').onsubmit = async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('fbSubmit');
+  const toast = document.getElementById('toast');
+  
+  btn.disabled = true;
+  btn.innerText = "Sending...";
 
-    // Aligned to your server.js configurations
-    const API_STATS_ENDPOINT = "/api/stats"; 
-    const API_SUBMIT_ENDPOINT = "/api/predict";
-
-    let userSubmissionState = { winner: '', argGoals: 0, spaGoals: 0 };
-
-    document.addEventListener("DOMContentLoaded", () => {
-      loadLiveDatabaseStats();
-      initLuxuryDustCanvasEngine();
-      
-      // Infinite runtime sync loop configuration every 5 seconds to catch live votes
-      setInterval(loadLiveDatabaseStats, 5000);
-
-      // Intro GSAP Animation Sequence Setup
-      const masterIntroTimeline = gsap.timeline();
-      masterIntroTimeline
-        .set("body", { opacity: 1 })
-        .fromTo("#cameraUniverse", { scale: 1.08, z: -100 }, { scale: 1, z: 0, duration: 2.5, ease: "power3.out" })
-        .fromTo("#spotlightLeft", { attr: { d: "M 200,-50 L 200,-50 L 200,-50 Z" }, opacity: 0 }, { attr: { d: "M 200,-50 L 850,1130 L -100,1130 Z" }, opacity: 0.8, duration: 1.8, ease: "power4.out" }, 0.3)
-        .fromTo("#spotlightRight", { attr: { d: "M 1720,-50 L 1720,-50 L 1720,-50 Z" }, opacity: 0 }, { attr: { d: "M 1720,-50 L 2020,1130 L 1070,1130 Z" }, opacity: 0.8, duration: 1.8, ease: "power4.out" }, 0.5)
-        .fromTo(".brand-header", { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 1, ease: "out" }, 1.2)
-        .fromTo("#predictorCard", { opacity: 0, y: 40, rotationX: 15 }, { opacity: 1, y: 0, rotationX: 0, duration: 1.2, ease: "power4.out" }, 1.4)
-        .add(() => { 
-          initializeDynamicAmbientStadiumLoops();
-          executeInfiniteBackgroundActionLoop(); 
-        }, 1.8);
-    });
-
-    /* ─── API CONNECTIVITY MECHANISMS (MAPPED TO YOUR SERVER.JS) ─── */
-    function loadLiveDatabaseStats() {
-      fetch(API_STATS_ENDPOINT)
-        .then(response => {
-          if (!response.ok) throw new Error("Database connectivity issue.");
-          return response.json();
-        })
-        .then(data => {
-          // Explicitly mapping variables from your node app fields
-          renderQuantitativeMetrics({
-            total: data.totalVotes || 0,
-            argentina: data.argentinaVotes || 0,
-            spain: data.spainVotes || 0
-          });
-        })
-        .catch(err => {
-          console.error("Database connection failure:", err.message);
-        });
-    }
-
-    function renderQuantitativeMetrics(dbRecords) {
-      document.getElementById("poolTotalText").innerText = `Total Submissions Counted: ${dbRecords.total.toLocaleString()}`;
-      
-      const pctArg = dbRecords.total > 0 ? ((dbRecords.argentina / dbRecords.total) * 100).toFixed(1) : 0;
-      const pctSpa = dbRecords.total > 0 ? ((dbRecords.spain / dbRecords.total) * 100).toFixed(1) : 0;
-
-      document.getElementById("txtCountArg").innerText = `${dbRecords.argentina.toLocaleString()} votes (${pctArg}%)`;
-      document.getElementById("txtCountSpa").innerText = `${dbRecords.spain.toLocaleString()} votes (${pctSpa}%)`;
-      
-      gsap.to("#poolBarArg", { width: `${pctArg}%`, duration: 1, ease: "power2.out" });
-      gsap.to("#poolBarSpa", { width: `${pctSpa}%`, duration: 1, ease: "power2.out" });
-    }
-
-    /* ─── API CONNECTIVITY MECHANISMS (UPDATED FOR SCHEMA) ─── */
-function executeFinalFormSubmission() {
-  const err = document.getElementById("errorDisplay");
-  const submitBtn = document.getElementById("submitBtn");
-  err.style.display = "none";
-
-  const nameInput = document.getElementById("usrName");
-  const orgInput = document.getElementById("usrOrg"); // Added reference
-  const argInput = document.getElementById("inputScoreArg");
-  const spaInput = document.getElementById("inputScoreSpa");
-
-  // Validate existence
-  if (!nameInput || !orgInput || !argInput || !spaInput) {
-    displayFormError("Form elements are missing from the page.");
-    return;
-  }
-
-  const name = nameInput.value.trim();
-  const org = orgInput.value.trim(); // Capture organization
-  const argGoals = parseInt(argInput.value, 10);
-  const spaGoals = parseInt(spaInput.value, 10);
-
-  if (!name || !org || isNaN(argGoals) || isNaN(spaGoals) || !userSubmissionState.winner) {
-    displayFormError("Please enter your name, organization, select a winner, and provide scores.");
-    return;
-  }
-
-  submitBtn.innerText = "Processing...";
-  submitBtn.disabled = true;
-
-  const userPredictionPayload = {
-    name: name,
-    organization: org, // Include in payload
-    predictedWinner: userSubmissionState.winner,
-    scoreArgentina: argGoals,
-    scoreSpain: spaGoals
+  const payload = {
+    name: document.getElementById('fbName').value,
+    message: document.getElementById('fbMessage').value
   };
 
-  fetch(API_SUBMIT_ENDPOINT, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(userPredictionPayload)
-  })
-  // ... (rest of your fetch logic)
+  try {
+    const response = await fetch('/api/feedback', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
 
-  .then(async response => {
-    const result = await response.json();
-    if (!response.ok) {
-      throw new Error(result.error || "Database transaction rejected.");
+    if (response.ok) {
+      // Show the beautiful toast instead of alert
+      toast.innerText = "Thank you for your feedback!";
+      toast.className = "toast-visible";
+      document.getElementById('feedbackForm').reset();
+      
+      // Hide it after 3 seconds
+      setTimeout(() => { toast.className = "toast-hidden"; }, 3000);
+    } else {
+      alert("Error submitting feedback.");
     }
-    return result;
-  })
-  .then(() => {
-    loadLiveDatabaseStats(); 
-    transitionToStep(3);
-  })
-  .catch(error => {
-    displayFormError(error.message);
-  })
-  .finally(() => {
-    submitBtn.innerText = "Submit Entry";
-    submitBtn.disabled = false;
-  });
-}
-
-    function displayFormError(msg) {
-      const err = document.getElementById("errorDisplay");
-      err.innerText = msg;
-      err.style.display = "block";
-      gsap.fromTo(err, { x: -10 }, { x: 0, duration: 0.4, ease: "elastic.out(1, 0.3)" });
-    }
-
-    /* ─── SCENE RENDERING STADIUM ENGINE CONTROLS ─── */
-    function initializeDynamicAmbientStadiumLoops() {
-      gsap.to("#spotlightLeft", { attr: { d: "M 200,-50 L 600,1130 L -350,1130 Z" }, duration: 8, ease: "sine.inOut", repeat: -1, yoyo: true });
-      gsap.to("#spotlightRight", { attr: { d: "M 1720,-50 L 2270,1130 L 1320,1130 Z" }, duration: 9, ease: "sine.inOut", repeat: -1, yoyo: true });
-
-      window.addEventListener("mousemove", (e) => {
-        const factorX = (e.clientX / window.innerWidth) - 0.5;
-        const factorY = (e.clientY / window.innerHeight) - 0.5;
-        gsap.to("#cameraUniverse", { x: factorX * 30, y: factorY * 30, rotationY: factorX * 2, rotationX: factorY * -2, duration: 1.5, ease: "power2.out" });
-      });
-    }
-
-    function executeInfiniteBackgroundActionLoop() {
-      const fieldWidth = window.innerWidth;
-      const rig = document.getElementById("playerBallRig");
-      const ball = document.getElementById("footballContainer");
-      const spinningBall = document.getElementById("spinningBall");
-      const runner = document.getElementById("vectorRunner");
-
-      gsap.set(rig, { x: -250, top: 10 });
-      gsap.set(ball, { x: 90, y: 0 });
-      gsap.set(runner, { y: 0 });
-
-      const runCycleTimeline = gsap.timeline({ repeat: 16 });
-      runCycleTimeline
-        .to("#legF", { rotation: 45, duration: 0.2, ease: "sine.inOut" })
-        .to("#legF", { rotation: -35, duration: 0.2, ease: "sine.inOut" })
-        .to("#legF", { rotation: 0, duration: 0.1, ease: "sine.inOut" }, "split")
-        .to("#legB", { rotation: -40, duration: 0.2, ease: "sine.inOut" }, 0)
-        .to("#legB", { rotation: 40, duration: 0.2, ease: "sine.inOut" }, 0.2)
-        .to("#legB", { rotation: 0, duration: 0.1, ease: "sine.inOut" }, "split")
-        .to("#armF", { rotation: -30, duration: 0.25, ease: "sine.inOut" }, 0)
-        .to("#armF", { rotation: 30, duration: 0.25, ease: "sine.inOut" }, 0.25)
-        .to("#armB", { rotation: 30, duration: 0.25, ease: "sine.inOut" }, 0)
-        .to("#armB", { rotation: -30, duration: 0.25, ease: "sine.inOut" }, 0.25)
-        .to(runner, { y: -8, duration: 0.12, ease: "sine.inOut", repeat: 7, yoyo: true }, 0);
-
-      const ballRotationLoop = gsap.to(spinningBall, { rotation: 360, duration: 0.4, ease: "none", repeat: -1 });
-      const dustInterval = setInterval(() => {
-             const currentRigX = gsap.getProperty(rig, "x");
-    // Spawn dust near the top, where the feet now are (adjusted for scale)
-    spawnFootDustParticle(currentRigX + 30, 100); 
-  }, 90);
-
-      const flightTimeline = gsap.timeline({
-        onComplete: () => {
-          runCycleTimeline.kill(); ballRotationLoop.kill(); clearInterval(dustInterval);
-          gsap.delayedCall(3, executeInfiniteBackgroundActionLoop);
-        }
-      });
-
-      flightTimeline.to(rig, { x: fieldWidth + 250, duration: 4.2, ease: "none" }, 0);
-
-      flightTimeline.add(() => {
-        const trailTimer = setInterval(() => {
-          const bX = gsap.getProperty(rig, "x") + gsap.getProperty(ball, "x") + 17;
-          const bY = (window.innerHeight * 0.5) + gsap.getProperty(ball, "y") + 17;
-          if (gsap.getProperty(rig, "x") < fieldWidth + 200) { spawnBallMotionTrailSparkle(bX, bY); } else { clearInterval(trailTimer); }
-        }, 35);
-
-        gsap.to(ball, {
-          duration: 2.2, ease: "power1.out",
-          motionPath: { path: [{ x: 190, y: -80 }, { x: 380, y: -290 }, { x: 580, y: -340 }, { x: 740, y: -220 }, { x: 880, y: 150 }], autoRotate: false }
-        });
-      }, 1.2);
-    }
-
-    function spawnFootDustParticle(originX, originY) {
-      const container = document.getElementById("cameraUniverse"); const dust = document.createElement("div"); dust.className = "particle-dust";
-      gsap.set(dust, { width: Math.random() * 16 + 8, height: Math.random() * 16 + 8, x: originX, y: originY }); container.appendChild(dust);
-      gsap.to(dust, { x: originX - (Math.random() * 40 + 20), y: originY - (Math.random() * 15), scale: 1.6, opacity: 0, duration: 0.6, ease: "power2.out", onComplete: () => dust.remove() });
-    }
-
-    function spawnBallMotionTrailSparkle(absoluteX, absoluteY) {
-      const container = document.getElementById("cameraUniverse"); const spark = document.createElement("div"); spark.className = "ball-trail-sparkle";
-      gsap.set(spark, { width: Math.random() * 10 + 6, height: Math.random() * 10 + 6, x: absoluteX, y: absoluteY }); container.appendChild(spark);
-      gsap.to(spark, { scale: 0.1, opacity: 0, duration: 0.7, ease: "power1.out", onComplete: () => spark.remove() });
-    }
-
-    function initLuxuryDustCanvasEngine() {
-      const canvas = document.getElementById("goldDustCanvas"); const ctx = canvas.getContext("2d"); let particles = [];
-      function resize() { const box = canvas.getBoundingClientRect(); canvas.width = box.width; canvas.height = box.height; }
-      resize(); window.addEventListener("resize", resize);
-      class GoldNode {
-        constructor() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height + canvas.height; this.size = Math.random() * 2 + 1; this.speedY = -(Math.random() * 0.4 + 0.2); this.speedX = (Math.random() * 0.3 - 0.15); this.opacity = Math.random() * 0.5 + 0.2; }
-        update() { this.y += this.speedY; this.x += this.speedX; if (this.y < -10) { this.y = canvas.height + 10; this.x = Math.random() * canvas.width; } }
-        draw() { ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fillStyle = `rgba(212, 175, 55, ${this.opacity})`; ctx.fill(); }
-      }
-      for(let i=0; i < 35; i++) { particles.push(new GoldNode()); }
-      function loop() { ctx.clearRect(0, 0, canvas.width, canvas.height); particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(loop); }
-      loop();
-    }
-
-    function selectWinnerSide(team) {
-      userSubmissionState.winner = team;
-      document.getElementById("cardArgentina").classList.remove("selected");
-      document.getElementById("cardSpain").classList.remove("selected");
-      document.getElementById(`card${team}`).classList.add("selected");
-    }
-
-    function transitionToStep(targetIndex) {
-      const err = document.getElementById("errorDisplay"); err.style.display = "none";
-      if (targetIndex === 2 && !userSubmissionState.winner) { displayFormError("Please select your predicted match winner to continue."); return; }
-      const currentActive = document.querySelector(".form-step.active"); const targetActive = document.getElementById(`step${targetIndex}`);
-      if (currentActive && targetActive) {
-        gsap.to(currentActive, { opacity: 0, y: -15, duration: 0.3, ease: "power2.in", onComplete: () => {
-          currentActive.classList.remove("active"); targetActive.classList.add("active");
-          gsap.fromTo(targetActive, { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" });
-        }});
-      }
-    }
+  } catch (err) {
+    alert("Server error.");
+  } finally {
+    btn.disabled = false;
+    btn.innerText = "Submit Feedback";
+  }
+};
   </script>
 </body>
 </html>

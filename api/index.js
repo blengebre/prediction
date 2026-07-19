@@ -23,6 +23,17 @@ const poolConfig = process.env.DATABASE_URL
     };
 
 const pool = new Pool(poolConfig);
+// ─── Security & Static Middleware ───────────────────────────────────────────
+app.use((req, res, next) => {
+  res.setHeader(
+    "Content-Security-Policy",
+    "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;"
+  );
+  next();
+});
+
+// Explicitly handle favicon.ico to prevent 404 errors in the console
+app.get('/favicon.ico', (req, res) => res.status(204).end());
 
 // ─── Table Auto-Creation ───────────────────────────────────────────────────────
 async function initializeDatabase() {
@@ -44,7 +55,10 @@ async function initializeDatabase() {
       ALTER TABLE match_predictions 
       ADD COLUMN IF NOT EXISTS organization VARCHAR(255);
     `);
-    
+    await pool.query(`
+      ALTER TABLE match_predictions 
+      ADD COLUMN IF NOT EXISTS feedback TEXT;
+    `);
     console.log('✅ PostgreSQL "match_predictions" schema verified.');
   } catch (err) {
     console.error('❌ Failed to initialize table:', err.message);
@@ -98,7 +112,9 @@ app.use(express.urlencoded({ extended: true }));
 
 // All /api/* requests must pass through the DB init guard first
 app.use('/api', dbInitMiddleware);
-
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
+});
 // ─── Static File Serving (local dev) ─────────────────────────────────────────
 // On Vercel, the /public directory is served by the CDN — express.static is only
 // used in local development.
@@ -107,20 +123,40 @@ app.use('/api', dbInitMiddleware);
 app.use(express.static(path.join(__dirname, '..', 'public'), { index: false }));
 
 // ─── Route: Public Predictor (RESTRICTED) ───────────────────────────────────
-app.get('/', (req, res) => {
-  const now = new Date();
-  const allowedStart = new Date('2026-07-18T20:00:00+03:00');
-  const allowedEnd = new Date('2026-07-19T22:00:52+03:00');
+app.post('/api/feedback', async (req, res) => {
+  const { name, message } = req.body;
 
-  if (now < allowedStart || now > allowedEnd) {
-    return res.status(403).send(`
-      <div style="font-family:sans-serif; text-align:center; padding-top:50px;">
-        <h1>⚽ Prediction Portal Closed</h1>
-        <p>The submission window for the World Cup Predictor has ended.</p>
-      </div>
-    `);
+  if (!name || !message) {
+    return res.status(400).json({ error: 'Please provide both name and message.' });
   }
-  res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
+
+  try {
+    // Check if the user exists in the predictions table
+    const checkUser = await pool.query(
+      'SELECT id FROM match_predictions WHERE name ILIKE $1 ORDER BY created_at DESC LIMIT 1',
+      [name.trim()]
+    );
+
+    if (checkUser.rows.length > 0) {
+      // User found: Update the feedback column for that user
+      await pool.query(
+        'UPDATE match_predictions SET feedback = $1 WHERE id = $2',
+        [message.trim(), checkUser.rows[0].id]
+      );
+    } else {
+      // User not found: Insert new row with feedback, set others to placeholders
+      await pool.query(
+        `INSERT INTO match_predictions (name, feedback, predicted_winner, score_argentina, score_spain, organization) 
+         VALUES ($1, $2, 'N/A', 0, 0, 'N/A')`,
+        [name.trim(), message.trim()]
+      );
+    }
+
+    return res.status(200).json({ success: true, message: 'Feedback saved!' });
+  } catch (err) {
+    console.error('❌ /api/feedback error:', err.message);
+    return res.status(500).json({ error: 'Database error.' });
+  }
 });
 
 // ─── Routes: Staff Portals (UNRESTRICTED) ───────────────────────────────────
@@ -131,6 +167,12 @@ app.get('/staff', (req, res) => {
 app.get('/dashboard', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'public', 'dashboard.html'));
 });
+
+// ─── Route: Thank You / Feedback Page ────────────────────────────────────────
+app.get('/thank-you', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'public', 'thank-you.html'));
+});
+
 // ─── API: Submit Fan Prediction ───────────────────────────────────────────────
 app.post('/api/predict', async (req, res) => {
   // Add 'organization' to destructuring
@@ -175,7 +217,6 @@ app.get('/api/stats', async (req, res) => {
 });
 
 // ─── API: All Voters (Staff View) ─────────────────────────────────────────────
-// ─── API: All Voters (Staff View) ─────────────────────────────────────────────
 app.get('/api/voters', async (req, res) => {
   try {
     const result = await pool.query(
@@ -190,7 +231,6 @@ app.get('/api/voters', async (req, res) => {
 });
 
 // ─── API: Calculate Top 5 Winners ─────────────────────────────────────────────
-
 app.post('/api/calculate-winners', async (req, res) => {
   const { actualWinner, actualScoreArgentina, actualScoreSpain } = req.body;
 
@@ -204,7 +244,7 @@ app.post('/api/calculate-winners', async (req, res) => {
 
   try {
     const { rows } = await pool.query('SELECT * FROM match_predictions');
-    
+
     const ranked = rows.map(p => {
       let points = 0;
       const pArg = p.score_argentina;
@@ -216,7 +256,7 @@ app.post('/api/calculate-winners', async (req, res) => {
       if (pWinner === rWinner) points += 300;
       if ((pArg - pSpa) === (rArg - rSpa)) points += 200;
       if ((pArg + pSpa) === (rArg + rSpa)) points += 100;
-      
+
       const totalError = Math.abs(pArg - rArg) + Math.abs(pSpa - rSpa);
       points -= (totalError * 20);
 
@@ -239,6 +279,7 @@ app.post('/api/calculate-winners', async (req, res) => {
     res.status(500).json({ error: 'Database calculation error.' });
   }
 });
+
 // ─── API: Health Check ────────────────────────────────────────────────────────
 app.get('/api/health', async (req, res) => {
   try {
