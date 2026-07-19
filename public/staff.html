@@ -532,18 +532,18 @@
 
     const container = document.getElementById('winnersContainer');
     
+    // Remove the <br> line that references ${w.email}
     container.innerHTML = backendDataCache.winners.map((w, index) => `
-      <div class="winner-row" style="animation-delay: ${index * 220}ms;">
-        <div>
-          <span class="rank">#${index + 1}</span> &nbsp;&nbsp;
-          <strong>${w.name}</strong> <span style="font-size:13px; color: var(--text-muted);">(${w.organization || 'No Org'})</span>
-          <br><span style="font-size:12px; color: #a8bce8; margin-left:42px;">Email: ${w.email}</span>
-        </div>
-        <div class="score-badge">
-          ${w.score_argentina} - ${w.score_spain}
-        </div>
-      </div>
-    `).join('');
+  <div class="winner-row" style="animation-delay: ${index * 220}ms;">
+    <div>
+      <span class="rank">#${index + 1}</span> &nbsp;&nbsp;
+      <strong>${w.name}</strong> <span style="font-size:13px; color: var(--text-muted);">(${w.organization || 'No Org'})</span>
+    </div>
+    <div class="score-badge">
+      ${w.score_argentina} - ${w.score_spain}
+    </div>
+  </div>
+`).join('');
 
     document.getElementById('winnerListBlock').style.display = 'block';
   }

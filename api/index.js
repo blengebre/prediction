@@ -196,14 +196,14 @@ app.post('/api/calculate-winners', async (req, res) => {
 
   try {
     const topPredictions = await pool.query(
-      `SELECT name, predicted_winner, score_argentina, score_spain,
-              (ABS(score_argentina - $1) + ABS(score_spain - $2)) AS score_error
-       FROM match_predictions
-       WHERE predicted_winner = $3
-       ORDER BY score_error ASC, created_at ASC
-       LIMIT 5`,
-      [actArg, actSpa, actualWinner]
-    );
+  `SELECT name, predicted_winner, score_argentina, score_spain,
+          (ABS(score_argentina - $1) + ABS(score_spain - $2)) AS score_error
+   FROM match_predictions
+   WHERE predicted_winner = $3
+   ORDER BY score_error ASC, created_at ASC
+   LIMIT 5`,
+  [actArg, actSpa, actualWinner]
+);
     res.status(200).json({ success: true, winners: topPredictions.rows });
   } catch (err) {
     console.error('❌ /api/calculate-winners error:', err.message);
