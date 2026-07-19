@@ -30,14 +30,14 @@ async function initializeDatabase() {
     CREATE TABLE IF NOT EXISTS match_predictions (
       id               SERIAL       PRIMARY KEY,
       name             VARCHAR(255) NOT NULL,
-      email            VARCHAR(255) NOT NULL UNIQUE,
-      organization     VARCHAR(255) DEFAULT '',
       predicted_winner VARCHAR(50)  NOT NULL,
       score_argentina  INT          NOT NULL,
       score_spain      INT          NOT NULL,
       created_at       TIMESTAMPTZ  DEFAULT NOW()
     );
   `;
+  // ...
+
   try {
     await pool.query(createTableSQL);
     console.log('✅ PostgreSQL "match_predictions" table verified.');
@@ -120,31 +120,20 @@ function checkVotingWindow(req, res, next) {
 
 // ─── API: Submit Fan Prediction ───────────────────────────────────────────────
 app.post('/api/predict', checkVotingWindow, async (req, res) => {
-  const { name, email, organization, predictedWinner, scoreArgentina, scoreSpain } = req.body;
+  const { name, predictedWinner, scoreArgentina, scoreSpain } = req.body;
 
-  if (!name || !email || !predictedWinner || scoreArgentina === undefined || scoreSpain === undefined) {
+  if (!name || !predictedWinner || scoreArgentina === undefined || scoreSpain === undefined) {
     return res.status(400).json({ error: 'Please provide all required fields and scores.' });
   }
 
   try {
     await pool.query(
-      `INSERT INTO match_predictions
-         (name, email, organization, predicted_winner, score_argentina, score_spain)
-       VALUES ($1, $2, $3, $4, $5, $6)`,
-      [
-        name.trim(),
-        email.trim().toLowerCase(),
-        (organization || '').trim(),
-        predictedWinner,
-        parseInt(scoreArgentina, 10),
-        parseInt(scoreSpain, 10),
-      ]
+      `INSERT INTO match_predictions (name, predicted_winner, score_argentina, score_spain)
+       VALUES ($1, $2, $3, $4)`,
+      [name.trim(), predictedWinner, parseInt(scoreArgentina, 10), parseInt(scoreSpain, 10)]
     );
     return res.status(200).json({ success: true, message: 'Prediction successfully locked in!' });
   } catch (err) {
-    if (err.code === '23505') {
-      return res.status(400).json({ error: 'This email address has already submitted a prediction!' });
-    }
     console.error('❌ /api/predict error:', err.message);
     return res.status(500).json({ error: 'Database error processing prediction. Please try again.' });
   }
@@ -172,10 +161,11 @@ app.get('/api/stats', async (req, res) => {
 });
 
 // ─── API: All Voters (Staff View) ─────────────────────────────────────────────
+// ─── API: All Voters (Staff View) ─────────────────────────────────────────────
 app.get('/api/voters', async (req, res) => {
   try {
     const result = await pool.query(
-      `SELECT name, organization, predicted_winner, score_argentina, score_spain, created_at
+      `SELECT name, predicted_winner, score_argentina, score_spain, created_at
        FROM match_predictions ORDER BY created_at DESC`
     );
     res.status(200).json({ success: true, voters: result.rows });
@@ -185,6 +175,7 @@ app.get('/api/voters', async (req, res) => {
   }
 });
 
+// ─── API: Calculate Top 5 Winners ─────────────────────────────────────────────
 // ─── API: Calculate Top 5 Winners ─────────────────────────────────────────────
 app.post('/api/calculate-winners', async (req, res) => {
   const { actualWinner, actualScoreArgentina, actualScoreSpain } = req.body;
@@ -198,7 +189,7 @@ app.post('/api/calculate-winners', async (req, res) => {
 
   try {
     const topPredictions = await pool.query(
-      `SELECT name, organization, email, predicted_winner, score_argentina, score_spain,
+      `SELECT name, predicted_winner, score_argentina, score_spain,
               (ABS(score_argentina - $1) + ABS(score_spain - $2)) AS score_error
        FROM match_predictions
        WHERE predicted_winner = $3
@@ -212,7 +203,6 @@ app.post('/api/calculate-winners', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
 // ─── API: Health Check ────────────────────────────────────────────────────────
 app.get('/api/health', async (req, res) => {
   try {
