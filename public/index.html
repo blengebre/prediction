@@ -554,14 +554,26 @@
       </section>
 
       <!-- STEP 3: SUCCESS TRANSITION -->
-      <section id="step3" class="form-step step-success-state">
-        <div class="premium-badge-check">
-          <span class="check-mark">✓</span>
-        </div>
-        <h2>Prediction Logged Successfully</h2>
-        <p style="color: var(--text-muted); font-size: 14px; line-height: 1.6;">Your entry configuration states have been counted and committed directly into the event backend ledger database.</p>
-        <div class="event-countdown-footer">Enjoy the VIP Match Lounge Experience Tonight.</div>
-      </section>
+      <!-- STEP 3: SUCCESS TRANSITION -->
+<section id="step3" class="form-step step-success-state">
+  <div class="premium-badge-check">
+    <span class="check-mark">✓</span>
+  </div>
+  <h2>Prediction Logged Successfully</h2>
+  <p style="color: var(--text-muted); font-size: 14px; line-height: 1.6;">
+    Your entry configuration has been committed to the event ledger.
+  </p>
+  
+  <!-- Add this button to link to the trivia game -->
+  <button type="button" class="action-btn prime-btn" style="margin-top:20px;" 
+          onclick="window.location.href='/trivia.html'">
+    Proceed to Trivia Challenge
+  </button>
+  
+  <div class="event-countdown-footer" style="margin-top:20px;">
+    Enjoy the VIP Match Lounge Experience Tonight.
+  </div>
+</section>
 
     </div>
   </main>

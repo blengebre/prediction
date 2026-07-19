@@ -183,7 +183,7 @@ app.get('/api/voters', async (req, res) => {
 });
 
 // ─── API: Calculate Top 5 Winners ─────────────────────────────────────────────
-// ─── API: Calculate Top 5 Winners ─────────────────────────────────────────────
+
 app.post('/api/calculate-winners', async (req, res) => {
   const { actualWinner, actualScoreArgentina, actualScoreSpain } = req.body;
 
@@ -191,23 +191,39 @@ app.post('/api/calculate-winners', async (req, res) => {
     return res.status(400).json({ error: 'Missing actual final match result parameters.' });
   }
 
-  const actArg = parseInt(actualScoreArgentina, 10);
-  const actSpa = parseInt(actualScoreSpain, 10);
+  const rArg = parseInt(actualScoreArgentina, 10);
+  const rSpa = parseInt(actualScoreSpain, 10);
+  const rWinner = actualWinner;
 
   try {
-    const topPredictions = await pool.query(
-  `SELECT name, predicted_winner, score_argentina, score_spain,
-          (ABS(score_argentina - $1) + ABS(score_spain - $2)) AS score_error
-   FROM match_predictions
-   WHERE predicted_winner = $3
-   ORDER BY score_error ASC, created_at ASC
-   LIMIT 5`,
-  [actArg, actSpa, actualWinner]
-);
-    res.status(200).json({ success: true, winners: topPredictions.rows });
+    // Get all predictions
+    const { rows } = await pool.query('SELECT * FROM match_predictions');
+    
+    // Calculate points for every prediction
+    const ranked = rows.map(p => {
+      let points = 0;
+      const pArg = p.score_argentina;
+      const pSpa = p.score_spain;
+      const pWinner = pArg > pSpa ? 'Argentina' : (pSpa > pArg ? 'Spain' : 'Draw');
+
+      if (pArg === rArg && pSpa === rSpa) points += 1000; // Exact match
+      if (pWinner === rWinner) points += 300;            // Winner match
+      if ((pArg - pSpa) === (rArg - rSpa)) points += 200; // Goal difference
+      if ((pArg + pSpa) === (rArg + rSpa)) points += 100; // Total goals
+      
+      const totalError = Math.abs(pArg - rArg) + Math.abs(pSpa - rSpa);
+      points -= (totalError * 20); // Penalty for error
+
+      return { ...p, points };
+    });
+
+    // Sort by Points DESC, then by Submission Date ASC (as a tiebreaker)
+    ranked.sort((a, b) => b.points - a.points || new Date(a.created_at) - new Date(b.created_at));
+
+    res.status(200).json({ success: true, winners: ranked.slice(0, 5) });
   } catch (err) {
     console.error('❌ /api/calculate-winners error:', err.message);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Database calculation error.' });
   }
 });
 // ─── API: Health Check ────────────────────────────────────────────────────────
